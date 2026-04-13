@@ -10,8 +10,10 @@ const SEARCH_RADIUS_METERS = 12000;
 const MAX_RESULTS_PER_CUISINE = 8;
 const MAX_DISCOVERY_RESULTS = 20;
 export const DAILY_PLACES_REQUEST_LIMIT = 100;
+export const PLACES_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const USAGE_STORAGE_KEY = 'food-roulette-google-places-usage';
+const PLACES_CACHE_STORAGE_KEY = 'food-roulette-google-places-cache';
 
 const GENERIC_PLACE_TYPES = new Set(['restaurant', 'food', 'point_of_interest', 'establishment']);
 
@@ -83,6 +85,11 @@ export type GooglePlacesLoadResult = {
 type PlacesUsage = {
   date: string;
   count: number;
+};
+
+type PlacesCache = {
+  savedAt: number;
+  result: GooglePlacesLoadResult;
 };
 
 function getApiKey() {
@@ -157,6 +164,38 @@ export function getPlacesUsage(): PlacesUsage {
 
 export function getRemainingPlacesRequests() {
   return Math.max(DAILY_PLACES_REQUEST_LIMIT - getPlacesUsage().count, 0);
+}
+
+export function getCachedPlacesLoadResult() {
+  const rawCache = window.localStorage.getItem(PLACES_CACHE_STORAGE_KEY);
+
+  if (!rawCache) {
+    return null;
+  }
+
+  try {
+    const cache = JSON.parse(rawCache) as PlacesCache;
+
+    if (Date.now() - cache.savedAt > PLACES_CACHE_TTL_MS) {
+      window.localStorage.removeItem(PLACES_CACHE_STORAGE_KEY);
+      return null;
+    }
+
+    return cache.result;
+  } catch {
+    window.localStorage.removeItem(PLACES_CACHE_STORAGE_KEY);
+    return null;
+  }
+}
+
+function cachePlacesLoadResult(result: GooglePlacesLoadResult) {
+  window.localStorage.setItem(
+    PLACES_CACHE_STORAGE_KEY,
+    JSON.stringify({
+      savedAt: Date.now(),
+      result
+    })
+  );
 }
 
 function reservePlacesRequests(requestCount: number) {
@@ -347,12 +386,16 @@ export async function fetchPlacesForCuisines(cuisines: Cuisine[]): Promise<Googl
   const totalPlaces = new Set(Object.values(placesByCuisineId).flat().map((place) => place.id)).size;
   const addedCuisineCount = allCuisines.filter((cuisine) => !baseCuisineIds.has(cuisine.id)).length;
 
-  return {
+  const result = {
     cuisines: allCuisines,
     placesByCuisineId,
     totalPlaces,
     addedCuisineCount
   };
+
+  cachePlacesLoadResult(result);
+
+  return result;
 }
 
 export function getRequiredRequestCount(cuisines: Cuisine[] = CUISINES) {

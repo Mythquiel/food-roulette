@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CUISINES, type Cuisine } from './data/cuisines';
 import {
   DAILY_PLACES_REQUEST_LIMIT,
+  getCachedPlacesLoadResult,
   fetchPlacesForCuisines,
   getRemainingPlacesRequests,
   getRequiredRequestCount,
@@ -134,9 +135,14 @@ function ActionBar({
 
   return (
     <section className="action-bar" aria-label="Akcje">
+    <div className="load-places-control">
       <button className="primary-button" type="button" onClick={onDraw} disabled={noOptions || noPlaces}>
         {hasResult ? 'Losuj ponownie' : drawMode === 'full' ? 'Wylosuj dla nas' : 'Wylosuj kuchnię'}
       </button>
+              <span className="quota-tooltip" role="tooltip">
+                Najpierw pobierz restauracje z Google.
+              </span>
+      </div>
       <div className="mode-toggle" aria-label="Tryb losowania">
         <button
           className={drawMode === 'full' ? 'is-active' : ''}
@@ -164,7 +170,7 @@ function ActionBar({
         </button>
         <span className="quota-tooltip" role="tooltip">
           Limit: {remainingPlacesRequests}/{DAILY_PLACES_REQUEST_LIMIT} zapytań dziś. Jedno pobranie
-          zużywa {requiredPlacesRequests}.
+          zużywa {requiredPlacesRequests}. Wyniki są zapamiętywane na 24 godziny.
         </span>
       </div>
       <button className="secondary-button" type="button" onClick={onReset}>
@@ -269,6 +275,18 @@ function App() {
       }, 0),
     [availableCuisinesWithPlaces, placesByCuisineId]
   );
+
+  useEffect(() => {
+    const cachedResult = getCachedPlacesLoadResult();
+
+    if (!cachedResult) {
+      return;
+    }
+
+    setCuisines(cachedResult.cuisines);
+    setPlacesByCuisineId(cachedResult.placesByCuisineId);
+    setPlacesStatus('ready');
+  }, []);
 
   useEffect(() => {
     if (!placesMessage || placesStatus === 'loading') {
