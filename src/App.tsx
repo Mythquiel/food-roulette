@@ -139,9 +139,9 @@ function ActionBar({
       <button className="primary-button" type="button" onClick={onDraw} disabled={noOptions || noPlaces}>
         {hasResult ? 'Losuj ponownie' : drawMode === 'full' ? 'Wylosuj dla nas' : 'Wylosuj kuchnię'}
       </button>
-              <span className="quota-tooltip" role="tooltip">
-                Najpierw pobierz restauracje z Google.
-              </span>
+      <span className="quota-tooltip" role="tooltip" hidden={!noOptions || !noPlaces}>
+          Najpierw pobierz restauracje z Google.
+      </span>
       </div>
       <div className="mode-toggle" aria-label="Tryb losowania">
         <button
