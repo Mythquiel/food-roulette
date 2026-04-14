@@ -8,7 +8,7 @@ const ZIELONA_GORA_CENTER = {
 
 const SEARCH_RADIUS_METERS = 12000;
 const MAX_RESULTS_PER_CUISINE = 100;
-export const DAILY_PLACES_REQUEST_LIMIT = 500;
+export const DAILY_PLACES_REQUEST_LIMIT = 200;
 export const PLACES_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
 const USAGE_STORAGE_KEY = 'food-roulette-google-places-usage';
