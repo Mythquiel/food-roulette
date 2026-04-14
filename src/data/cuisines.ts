@@ -2,80 +2,56 @@ export type Cuisine = {
   id: string;
   name: string;
   googlePlacesQuery: string;
-  googlePlaceTypes: string[];
 };
 
-export const CUISINES: Cuisine[] = [
-  {
-    id: 'pizza',
-    name: 'Pizza',
-    googlePlacesQuery: 'pizza restauracja Zielona Góra',
-    googlePlaceTypes: ['pizza_restaurant']
-  },
-  {
-    id: 'burgers',
-    name: 'Burgery',
-    googlePlacesQuery: 'burgery restauracja Zielona Góra',
-    googlePlaceTypes: ['hamburger_restaurant']
-  },
-  {
-    id: 'sushi',
-    name: 'Sushi',
-    googlePlacesQuery: 'sushi restauracja Zielona Góra',
-    googlePlaceTypes: ['sushi_restaurant']
-  },
-  {
-    id: 'thai',
-    name: 'Tajska',
-    googlePlacesQuery: 'tajska restauracja Zielona Góra',
-    googlePlaceTypes: ['thai_restaurant']
-  },
-  {
-    id: 'indian',
-    name: 'Indyjska',
-    googlePlacesQuery: 'indyjska restauracja Zielona Góra',
-    googlePlaceTypes: ['indian_restaurant']
-  },
-  {
-    id: 'mexican',
-    name: 'Meksykańska',
-    googlePlacesQuery: 'meksykańska restauracja Zielona Góra',
-    googlePlaceTypes: ['mexican_restaurant']
-  },
-  {
-    id: 'chinese',
-    name: 'Chińska',
-    googlePlacesQuery: 'chińska restauracja Zielona Góra',
-    googlePlaceTypes: ['chinese_restaurant']
-  },
-  {
-    id: 'kebab',
-    name: 'Kebab',
-    googlePlacesQuery: 'kebab Zielona Góra',
-    googlePlaceTypes: ['middle_eastern_restaurant']
-  },
-  {
-    id: 'pasta',
-    name: 'Makarony',
-    googlePlacesQuery: 'makaron pasta restauracja Zielona Góra',
-    googlePlaceTypes: ['italian_restaurant']
-  },
-  {
-    id: 'vegetarian',
-    name: 'Wegetariańska',
-    googlePlacesQuery: 'wegetariańska restauracja Zielona Góra',
-    googlePlaceTypes: ['vegetarian_restaurant', 'vegan_restaurant']
-  },
-  {
-    id: 'vietnamese',
-    name: 'Wietnamska',
-    googlePlacesQuery: 'wietnamska restauracja Zielona Góra',
-    googlePlaceTypes: ['vietnamese_restaurant']
-  },
-  {
-    id: 'desserts',
-    name: 'Desery',
-    googlePlacesQuery: 'desery kawiarnia Zielona Góra',
-    googlePlaceTypes: ['dessert_shop', 'ice_cream_shop', 'bakery', 'cafe']
-  }
-];
+export const CUISINES_PL = [
+  'Pizza',
+  'Burgery',
+  'Kebab',
+  'Sushi',
+  'Kuchnia chińska',
+  'Kuchnia tajska',
+  'Kuchnia indyjska',
+  'Kuchnia włoska',
+  'Kuchnia meksykańska',
+  'Kuchnia polska',
+  'Kuchnia amerykańska',
+  'Kuchnia grecka',
+  'Kuchnia turecka',
+  'Kuchnia wietnamska',
+  'Kuchnia japońska',
+  'Kuchnia koreańska',
+  'Kuchnia bliskowschodnia',
+  'Kuchnia hiszpańska',
+  'Kuchnia czeska',
+  'Steki',
+  'Grill / BBQ',
+  'Owoce morza',
+  'Makarony',
+  'Ramen',
+  'Street food',
+  'Desery',
+  'Fast food',
+  'Wrapy',
+  'Kanapki'
+] as const;
+
+function toCuisineId(name: string) {
+  return name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ł/g, 'l')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+function toGoogleQuery(name: string) {
+  return `${name} restauracja Zielona Góra`;
+}
+
+export const CUISINES: Cuisine[] = CUISINES_PL.map((name) => ({
+  id: toCuisineId(name),
+  name,
+  googlePlacesQuery: toGoogleQuery(name)
+}));
