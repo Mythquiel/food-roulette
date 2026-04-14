@@ -77,6 +77,12 @@ function CuisineFilterList({
   onExcludeAll,
   onClearExclusions
 }: CuisineFilterListProps) {
+  const [searchQuery, setSearchQuery] = useState('');
+  const normalizedSearchQuery = searchQuery.trim().toLowerCase();
+  const visibleCuisines = normalizedSearchQuery
+    ? cuisines.filter((cuisine) => cuisine.name.toLowerCase().includes(normalizedSearchQuery))
+    : cuisines;
+
   return (
     <section
       className="grid gap-4 rounded-lg border border-white/10 bg-[#080b10]/65 p-4 shadow-[0_22px_58px_rgb(0_0_0_/_28%)] backdrop-blur-xl"
@@ -112,8 +118,18 @@ function CuisineFilterList({
         </div>
       </div>
 
+      <label className="grid gap-2">
+        <input
+          className="min-h-12 rounded-lg border border-white/10 bg-[#111820]/90 px-4 text-base font-black text-[#edf4f8] outline-none transition placeholder:text-[#64717d] focus:border-[#5ee0d5]/70 focus:ring-3 focus:ring-[#5ee0d5]/15"
+          type="search"
+          value={searchQuery}
+          onChange={(event) => setSearchQuery(event.target.value)}
+          placeholder="np. sushi, kebab, kuchnia włoska"
+        />
+      </label>
+
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {cuisines.map((cuisine) => {
+        {visibleCuisines.map((cuisine) => {
           const isExcluded = excludedCuisineIds.includes(cuisine.id);
           const livePlaces = placesByCuisineId[cuisine.id] ?? [];
           const placeCount = livePlaces.length;
@@ -146,6 +162,11 @@ function CuisineFilterList({
           );
         })}
       </div>
+      {visibleCuisines.length === 0 && (
+        <p className="rounded-lg border border-white/10 bg-[#111820]/70 p-4 text-sm font-black text-[#91a1ad]">
+          Brak kuchni pasujących do wyszukiwania.
+        </p>
+      )}
     </section>
   );
 }
